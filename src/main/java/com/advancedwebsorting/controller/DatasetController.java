@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 
@@ -46,6 +49,28 @@ public class DatasetController {
         CustomResponse response = new CustomResponse("Dataset cleared", true, "");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<CustomResponse> putMethodName(@PathVariable Integer id, @RequestBody Integer number) {
+        datasetService.updateNumber(number, id);
+        CustomResponse response = new CustomResponse("Dataset updated", true, "");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<CustomResponse> postMethodName(@PathVariable Integer position) {
+        boolean success = datasetService.removeNumber(position);
+        if(success) {
+            CustomResponse response = new CustomResponse("Number removed from dataset", true, "");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        else{
+            CustomResponse response = new CustomResponse("Operation failed", false, "");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        
+    }
+    
     
     
     

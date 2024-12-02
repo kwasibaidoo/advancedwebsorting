@@ -30,4 +30,8 @@ public class DatasetService {
     public void clearDataset(){
         dataset.getData().clear();
     }
+
+    public void updateNumber(int number, int position) {
+        dataset.getData().set(position, number);
+    }
 }
