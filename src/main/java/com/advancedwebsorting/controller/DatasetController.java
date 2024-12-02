@@ -51,14 +51,15 @@ public class DatasetController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<CustomResponse> putMethodName(@PathVariable Integer id, @RequestBody Integer number) {
+    public ResponseEntity<CustomResponse> putMethodName(@PathVariable("id") Integer id, @RequestBody Integer number) {
+        System.out.println(id);
         datasetService.updateNumber(number, id);
         CustomResponse response = new CustomResponse("Dataset updated", true, "");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/delete/{id}")
-    public ResponseEntity<CustomResponse> postMethodName(@PathVariable Integer position) {
+    @PostMapping("/delete/{position}")
+    public ResponseEntity<CustomResponse> postMethodName(@PathVariable("position") Integer position) {
         boolean success = datasetService.removeNumber(position);
         if(success) {
             CustomResponse response = new CustomResponse("Number removed from dataset", true, "");
