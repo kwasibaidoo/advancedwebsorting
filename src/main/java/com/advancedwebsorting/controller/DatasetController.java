@@ -8,6 +8,8 @@ import com.advancedwebsorting.utils.CustomResponse;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,9 +40,16 @@ public class DatasetController {
     }
 
     @GetMapping("/getdataset")
-    public ResponseEntity<CustomResponse> getDataset() {
+    public ResponseEntity<EntityModel<CustomResponse>> getDataset() {
         CustomResponse response = new CustomResponse("Numbers retrieved successfully", true, datasetService.getDataset());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
+        // Create the response model with links
+        EntityModel<CustomResponse> resource = EntityModel.of(response);
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).delete(null)).withRel("removeNumber"));
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
     @PostMapping("/clear")
@@ -51,7 +60,7 @@ public class DatasetController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<CustomResponse> putMethodName(@PathVariable("id") Integer id, @RequestBody Integer number) {
+    public ResponseEntity<CustomResponse> updateDataset(@PathVariable("id") Integer id, @RequestBody Integer number) {
         System.out.println(id);
         datasetService.updateNumber(number, id);
         CustomResponse response = new CustomResponse("Dataset updated", true, "");
@@ -59,7 +68,7 @@ public class DatasetController {
     }
 
     @PostMapping("/delete/{position}")
-    public ResponseEntity<CustomResponse> postMethodName(@PathVariable("position") Integer position) {
+    public ResponseEntity<CustomResponse> delete(@PathVariable("position") Integer position) {
         boolean success = datasetService.removeNumber(position);
         if(success) {
             CustomResponse response = new CustomResponse("Number removed from dataset", true, "");
