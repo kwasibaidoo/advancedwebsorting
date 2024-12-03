@@ -38,10 +38,10 @@ public class DatasetController {
         String[] numbersArray = input.split(",");
         for (String numStr : numbersArray) {
             try {
-                Integer number = Integer.parseInt(numStr.trim()); // Convert each string to Integer
-                datasetService.addNumber(number); // Add the number to the dataset
+                Integer number = Integer.parseInt(numStr.trim());
+                datasetService.addNumber(number);
             } catch (NumberFormatException e) {
-                // If a non-integer value is encountered, return an error response
+                
                 CustomResponse errorResponse = new CustomResponse("Invalid number format", false, "The input contains a non-integer value: " + numStr);
                 EntityModel<CustomResponse> errorResource = EntityModel.of(errorResponse);
                 return new ResponseEntity<>(errorResource, HttpStatus.BAD_REQUEST);
@@ -62,7 +62,7 @@ public class DatasetController {
     public ResponseEntity<EntityModel<CustomResponse>> getDataset() {
         CustomResponse response = new CustomResponse("Numbers retrieved successfully", true, datasetService.getDataset());
 
-        // Create the response model with links
+        
         EntityModel<CustomResponse> resource = EntityModel.of(response);
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));

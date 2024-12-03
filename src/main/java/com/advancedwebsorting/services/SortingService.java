@@ -8,24 +8,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class SortingService {
 
-    // Heap Sort
+    
     public List<Integer> heapSort(List<Integer> dataset) {
         int n = dataset.size();
 
-        // Build a max heap
+        
         for (int i = n / 2 - 1; i >= 0; i--) {
             heapify(dataset, n, i);
         }
 
-        // One by one extract elements
+        
         for (int i = n - 1; i > 0; i--) {
-            Collections.swap(dataset, 0, i);  // Move current root to end
-            heapify(dataset, i, 0);  // Heapify the reduced heap
+            Collections.swap(dataset, 0, i);  
+            heapify(dataset, i, 0); 
         }
         return dataset;
     }
 
-    // Heapify a subtree rooted at index i
+    
     private void heapify(List<Integer> dataset, int n, int i) {
         int largest = i;
         int left = 2 * i + 1;
@@ -44,7 +44,7 @@ public class SortingService {
         }
     }
 
-    // Quick Sort
+    
     public List<Integer> quickSort(List<Integer> dataset) {
         if (dataset.size() < 2) return dataset;
 
@@ -61,7 +61,7 @@ public class SortingService {
         return sorted;
     }
 
-    // Merge Sort
+    
     public List<Integer> mergeSort(List<Integer> dataset) {
         if (dataset.size() < 2) return dataset;
 
@@ -90,9 +90,9 @@ public class SortingService {
         return result;
     }
 
-    // Radix Sort
+    
     public List<Integer> radixSort(List<Integer> dataset) {
-        // Find the maximum number to know the number of digits
+        
         int max = Collections.max(dataset);
         int exp = 1;
         while (max / exp > 0) {
@@ -102,29 +102,29 @@ public class SortingService {
         return dataset;
     }
 
-    // A function to do counting sort of dataset according to the digit represented by exp
+    
     private List<Integer> countingSortByDigit(List<Integer> dataset, int exp) {
         int n = dataset.size();
         int[] output = new int[n];
         int[] count = new int[10];
 
-        // Store count of occurrences in count[]
+        
         for (int i = 0; i < n; i++) {
             count[(dataset.get(i) / exp) % 10]++;
         }
 
-        // Change count[i] so that it now contains actual position of this digit in output[]
+        
         for (int i = 1; i < 10; i++) {
             count[i] += count[i - 1];
         }
 
-        // Build the output array
+        
         for (int i = n - 1; i >= 0; i--) {
             output[count[(dataset.get(i) / exp) % 10] - 1] = dataset.get(i);
             count[(dataset.get(i) / exp) % 10]--;
         }
 
-        // Copy the output array to dataset[], so that dataset now contains sorted numbers
+        
         List<Integer> sorted = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             sorted.add(output[i]);
@@ -132,15 +132,15 @@ public class SortingService {
         return sorted;
     }
 
-    // Bucket Sort
+    
     public List<Integer> bucketSort(List<Integer> dataset) {
         if (dataset.isEmpty()) return dataset;
 
-        // Find maximum value to determine number of buckets
+        
         int max = Collections.max(dataset);
         int bucketCount = (int) Math.sqrt(dataset.size());
 
-        // Create buckets and distribute elements into them
+        
         List<List<Integer>> buckets = new ArrayList<>();
         for (int i = 0; i < bucketCount; i++) {
             buckets.add(new ArrayList<>());
@@ -151,7 +151,7 @@ public class SortingService {
             buckets.get(bucketIndex).add(num);
         }
 
-        // Sort each bucket and concatenate the results
+        
         List<Integer> sorted = new ArrayList<>();
         for (List<Integer> bucket : buckets) {
             Collections.sort(bucket);
