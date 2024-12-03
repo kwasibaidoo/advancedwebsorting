@@ -31,7 +31,12 @@ public class DatasetService {
         dataset.getData().clear();
     }
 
-    public void updateNumber(int number, int position) {
-        dataset.getData().set(position, number);
+    public boolean updateNumber(int number, int position) {
+        try {
+            dataset.getData().set(position, number);
+            return true;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
     }
 }

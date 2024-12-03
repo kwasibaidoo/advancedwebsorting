@@ -33,10 +33,29 @@ public class DatasetController {
     }
     
     @PostMapping("/addtodataset")
-    public ResponseEntity<CustomResponse> addToDataset(@RequestBody Integer number) {
-        datasetService.addNumber(number);
+    public ResponseEntity<EntityModel<CustomResponse>> addToDataset(@RequestBody String input) {
+        
+        String[] numbersArray = input.split(",");
+        for (String numStr : numbersArray) {
+            try {
+                Integer number = Integer.parseInt(numStr.trim()); // Convert each string to Integer
+                datasetService.addNumber(number); // Add the number to the dataset
+            } catch (NumberFormatException e) {
+                // If a non-integer value is encountered, return an error response
+                CustomResponse errorResponse = new CustomResponse("Invalid number format", false, "The input contains a non-integer value: " + numStr);
+                EntityModel<CustomResponse> errorResource = EntityModel.of(errorResponse);
+                return new ResponseEntity<>(errorResource, HttpStatus.BAD_REQUEST);
+            }
+        }
         CustomResponse response = new CustomResponse("Number added successfully", true, "");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
+        EntityModel<CustomResponse> resource = EntityModel.of(response);
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).getDataset()).withRel("getDataset"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).delete(null)).withRel("removeNumber"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).updateDataset(null,null)).withRel("updateNumber"));
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
     @GetMapping("/getdataset")
@@ -48,35 +67,72 @@ public class DatasetController {
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));
         resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).delete(null)).withRel("removeNumber"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).updateDataset(null,null)).withRel("updateNumber"));
 
         return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
     @PostMapping("/clear")
-    public ResponseEntity<CustomResponse> clearDataset() {
+    public ResponseEntity<EntityModel<CustomResponse>> clearDataset() {
         datasetService.clearDataset();
         CustomResponse response = new CustomResponse("Dataset cleared", true, "");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
+        EntityModel<CustomResponse> resource = EntityModel.of(response);
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).getDataset()).withRel("getDataset"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).delete(null)).withRel("removeNumber"));
+        resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).updateDataset(null,null)).withRel("updateNumber"));
+
+        return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<CustomResponse> updateDataset(@PathVariable("id") Integer id, @RequestBody Integer number) {
-        System.out.println(id);
-        datasetService.updateNumber(number, id);
-        CustomResponse response = new CustomResponse("Dataset updated", true, "");
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<EntityModel<CustomResponse>> updateDataset(@PathVariable("id") Integer id, @RequestBody Integer number) {
+        boolean success = datasetService.updateNumber(number, id);
+        if(success){
+            CustomResponse response = new CustomResponse("Dataset updated", true, "");
+
+            EntityModel<CustomResponse> resource = EntityModel.of(response);
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).getDataset()).withRel("getDataset"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).delete(null)).withRel("removeNumber"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));
+    
+            return new ResponseEntity<>(resource, HttpStatus.OK);
+        }
+        else {
+            CustomResponse response = new CustomResponse("Operation failed", false, "");
+
+            EntityModel<CustomResponse> resource = EntityModel.of(response);
+
+            return new ResponseEntity<>(resource, HttpStatus.OK);
+        }
+        
     }
 
     @PostMapping("/delete/{position}")
-    public ResponseEntity<CustomResponse> delete(@PathVariable("position") Integer position) {
+    public ResponseEntity<EntityModel<CustomResponse>> delete(@PathVariable("position") Integer position) {
         boolean success = datasetService.removeNumber(position);
         if(success) {
             CustomResponse response = new CustomResponse("Number removed from dataset", true, "");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+
+            EntityModel<CustomResponse> resource = EntityModel.of(response);
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).getDataset()).withRel("getDataset"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).updateDataset(null, null)).withRel("updateNumber"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));
+            
+            return new ResponseEntity<>(resource, HttpStatus.OK);
         }
         else{
             CustomResponse response = new CustomResponse("Operation failed", false, "");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            EntityModel<CustomResponse> resource = EntityModel.of(response);
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).addToDataset(null)).withRel("addToDataset"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).getDataset()).withRel("getDataset"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).updateDataset(null, null)).withRel("updateNumber"));
+            resource.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(DatasetController.class).clearDataset()).withRel("clearDataset"));
+            
+            return new ResponseEntity<>(resource, HttpStatus.OK);
         }
         
     }
